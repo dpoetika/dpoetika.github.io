@@ -1,95 +1,590 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Mayın Tarlası — Algoritmik Oyun Teorisi Sunumu</title>
-  <style>
-    body {font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial; max-width:900px; margin:40px auto; line-height:1.6; padding:0 16px; color:#222;}
-    header {border-bottom:1px solid #eee; margin-bottom:24px;}
-    h1 {margin:6px 0;}
-    .meta {color:#666; font-size:0.9em;}
-    pre {background:#f6f8fa; padding:12px; overflow:auto; border-radius:6px;}
-    code {background:#f6f8fa; padding:2px 6px; border-radius:4px;}
-    .diagram {max-width:100%; border:1px solid #eee; padding:8px; background:white; border-radius:6px;}
-    footer {margin-top:40px; color:#666; font-size:0.9em;}
-    .button {display:inline-block; padding:8px 12px; background:#0366d6; color:white; border-radius:6px; text-decoration:none;}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mayın Tarlası - Algoritmik Oyun Teorisi Analizi</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin: 1.5rem 0 1rem;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 0.5rem;
+        }
+        
+        h3 {
+            font-size: 1.4rem;
+            margin: 1.2rem 0 0.8rem;
+            color: var(--dark-color);
+        }
+        
+        p {
+            margin-bottom: 1rem;
+        }
+        
+        section {
+            padding: 2rem 0;
+            background-color: white;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .content-section {
+            padding: 2rem;
+        }
+        
+        .game-section {
+            background-color: var(--light-color);
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .game-container {
+            display: inline-block;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .minesweeper-board {
+            display: grid;
+            grid-template-columns: repeat(10, 30px);
+            grid-gap: 2px;
+            margin: 0 auto;
+        }
+        
+        .cell {
+            width: 30px;
+            height: 30px;
+            background-color: #bdc3c7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            cursor: pointer;
+            border: 2px outset #7f8c8d;
+            user-select: none;
+        }
+        
+        .cell.revealed {
+            background-color: #ecf0f1;
+            border: 1px solid #bdc3c7;
+        }
+        
+        .cell.flagged::after {
+            content: "🚩";
+        }
+        
+        .cell.mine::after {
+            content: "💣";
+        }
+        
+        .cell.mine.revealed {
+            background-color: var(--accent-color);
+        }
+        
+        .number-1 { color: blue; }
+        .number-2 { color: green; }
+        .number-3 { color: red; }
+        .number-4 { color: darkblue; }
+        .number-5 { color: brown; }
+        .number-6 { color: teal; }
+        .number-7 { color: black; }
+        .number-8 { color: gray; }
+        
+        .controls {
+            margin-top: 20px;
+        }
+        
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .game-theory-concepts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .concept-card {
+            background-color: var(--light-color);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .concept-card h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+        
+        .algorithm-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        pre {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        footer {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 1.5rem 0;
+            margin-top: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .minesweeper-board {
+                grid-template-columns: repeat(10, 25px);
+            }
+            
+            .cell {
+                width: 25px;
+                height: 25px;
+                font-size: 0.8rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <h1>Mayın Tarlası (Minesweeper) — Algoritmik Oyun Teorisi Projesi</h1>
-    <div class="meta">Hazırlayan: <strong>Adını Buraya Yaz</strong> • Teslim: 2 Kasım 2025</div>
-  </header>
+    <header>
+        <div class="container">
+            <h1>Mayın Tarlası: Algoritmik Oyun Teorisi Analizi</h1>
+            <p>Bir klasik oyunun matematiksel ve stratejik analizi</p>
+        </div>
+    </header>
 
-  <section>
-    <h2>Özet</h2>
-    <p>Bu proje, <strong>Mayın Tarlası</strong> oyununu algoritmik oyun kuramı (AGT) çerçevesinde inceler. Amaç, oyunun stratejik yapısını, oyuncu davranışlarını ve Nash dengesi gibi kavramları pratik bir örnek üzerinden göstermektir.</p>
-  </section>
+    <div class="container">
+        <section class="content-section">
+            <h2>Oyun Hakkında</h2>
+            <p>Mayın Tarlası, 1990'larda Microsoft Windows işletim sistemleriyle popüler hale gelen tek oyunculu bir bulmaca oyunudur. Oyuncunun amacı, mayın içermeyen tüm hücreleri, mayınlara basmadan açmaktır. Her hücre, komşu hücrelerdeki mayın sayısını gösterir ve bu bilgiyi kullanarak oyuncu güvenli hücreleri belirleyebilir.</p>
+            
+            <p>Algoritmik oyun teorisi açısından bakıldığında, Mayın Tarlası tam bilgili olmayan bir oyundur. Oyuncu, mayınların konumunu bilmez ve oyun boyunca edindiği bilgilerle optimal stratejiler geliştirmelidir.</p>
+        </section>
 
-  <section>
-    <h2>Oyun Tanımı</h2>
-    <p>Mayın Tarlası klasik olarak tek oyunculu bir mantık oyunudur. Ancak bu çalışmada oyunu <strong>çok oyunculu</strong> bir stratejik ortam olarak ele alıyoruz: oyuncular sırayla hücre seçer, risk alır veya işaretleme yapar.</p>
+        <section class="game-section">
+            <h2>Mayın Tarlası Oyunu</h2>
+            <div class="game-container">
+                <div class="game-info">
+                    <div class="mines-count">Mayınlar: <span id="mines-remaining">10</span></div>
+                    <div class="timer">Süre: <span id="time">0</span>s</div>
+                </div>
+                <div class="minesweeper-board" id="game-board">
+                    <!-- Oyun tahtası JavaScript ile oluşturulacak -->
+                </div>
+                <div class="controls">
+                    <button id="reset-btn">Yeni Oyun</button>
+                </div>
+            </div>
+        </section>
 
-    <h3>Oyuncular</h3>
-    <p>Her biri aynı ızgarada oynayan <strong>N oyuncu</strong>.</p>
+        <section class="content-section">
+            <h2>Oyun Teorisi Kavramları</h2>
+            <div class="game-theory-concepts">
+                <div class="concept-card">
+                    <h3>Nash Dengesi</h3>
+                    <p>Mayın Tarlası tek oyunculu bir oyun olduğu için klasik Nash dengesi kavramı doğrudan uygulanamaz. Ancak, oyuncunun mayın konumlarına ilişkin inançları ve bu inançlara göre optimal hareket etmesi bir tür "kendi kendine Nash dengesi" olarak düşünülebilir.</p>
+                </div>
+                <div class="concept-card">
+                    <h3>Bilgi Setleri</h3>
+                    <p>Mayın Tarlası, eksik bilgiye sahip bir oyundur. Oyuncu, mayınların konumlarını bilmez ve her hamle sonucunda yeni bilgiler edinir. Bu bilgi setleri, oyuncunun karar verme sürecini şekillendirir.</p>
+                </div>
+                <div class="concept-card">
+                    <h3>Beklenen Fayda Maksimizasyonu</h3>
+                    <p>Oyuncu, her hamlede mayına basma riskini minimize etmeye çalışır. Bu, olasılık teorisi ve beklenen fayda maksimizasyonu kavramlarıyla modellenebilir. Oyuncu, en yüksek güvenlik olasılığına sahip hücreleri seçer.</p>
+                </div>
+            </div>
+        </section>
 
-    <h3>Stratejiler</h3>
-    <ul>
-      <li>Güvenli açma (düşük riskli hücre seçimi)</li>
-      <li>Riskli açma (yüksek puan ama mayın riski)</li>
-      <li>Bayraklama (mayın olduğunu düşündüğü hücreyi işaretleme)</li>
-    </ul>
+        <section class="content-section">
+            <h2>Algoritmik Analiz</h2>
+            <p>Mayın Tarlası çözme algoritmaları, mantıksal çıkarım ve olasılıksal analiz kullanır. İki temel yaklaşım vardır:</p>
+            
+            <div class="algorithm-section">
+                <h3>1. Deterministik Çözüm</h3>
+                <p>Bu yaklaşımda, mevcut bilgilere dayanarak kesin olarak güvenli veya mayınlı olduğu belirlenen hücreler işaretlenir. Örneğin, bir hücrede "1" yazıyorsa ve sadece bir kapalı komşusu varsa, o komşu kesinlikle mayınlıdır.</p>
+                
+                <pre><code>function deterministicSolve(board) {
+    for (each revealed cell with number n) {
+        if (hidden neighbors count == n) {
+            flag all hidden neighbors as mines
+        }
+        if (flagged neighbors count == n) {
+            reveal all hidden neighbors
+        }
+    }
+}</code></pre>
+            </div>
+            
+            <div class="algorithm-section">
+                <h3>2. Olasılıksal Çözüm</h3>
+                <p>Deterministik kuralların yetersiz kaldığı durumlarda, olasılık hesaplamaları kullanılır. Her hücrenin mayın içerme olasılığı hesaplanır ve en düşük olasılığa sahip hücreler açılır.</p>
+                
+                <pre><code>function probabilisticSolve(board) {
+    calculate probabilities for all hidden cells
+    find the cell with minimum probability of containing a mine
+    if (probability < threshold) {
+        reveal that cell
+    } else {
+        make a guess (game becomes uncertain)
+    }
+}</code></pre>
+            </div>
+        </section>
 
-    <h3>Ödeme Fonksiyonu</h3>
-    <pre>
-U_i = +1 × güvenli hücreler
-     −10 × açılan mayınlar
-     +2 × doğru bayraklar
-    </pre>
-  </section>
+        <section class="content-section">
+            <h2>Matematiksel Model</h2>
+            <p>Mayın Tarlası, bir olasılık uzayı (Ω, F, P) olarak modellenebilir:</p>
+            <ul>
+                <li>Ω: Tüm olası mayın yerleşimlerinin kümesi</li>
+                <li>F: Ω üzerinde tanımlı σ-cebiri (olaylar kümesi)</li>
+                <li>P: Her mayın konfigürasyonuna eşit olasılık atayan ölçü</li>
+            </ul>
+            
+            <p>Oyuncunun bilgi seti, açılan hücreler ve sayıları tarafından belirlenir. Her hamlede, oyuncu mevcut bilgi setine göre en düşük riskli hamleyi seçer.</p>
+            
+            <p>Bir hücrenin mayın içerme olasılığı şu şekilde hesaplanır:</p>
+            <p>P(hücre = mayın | bilgi) = (bilgi ile uyumlu ve hücrenin mayınlı olduğu konfigürasyon sayısı) / (bilgi ile uyumlu tüm konfigürasyon sayısı)</p>
+        </section>
 
-  <section>
-    <h2>AGT Analizi</h2>
-    <p>Oyuncular kısmi bilgiyle karar verir. Bu nedenle oyun <strong>kısmi bilgiye sahip genişletilmiş form oyun</strong>dur.</p>
-    <h3>Nash Dengesi</h3>
-    <p>Belirli ızgara boyutlarında, oyuncuların “riskli” ve “güvenli” stratejiler arasında karışık strateji dengeye ulaşabileceği gösterilebilir.</p>
-    <h3>Pareto Optimum</h3>
-    <p>Tüm oyuncular bilgi paylaşarak ortak kazançlarını maksimize eder, ancak bireysel rasyonalite bunu engeller — klasik AGT ikilemi.</p>
-  </section>
+        <section class="content-section">
+            <h2>Gerçek Dünya Uygulamaları</h2>
+            <p>Mayın Tarlası ve benzeri algoritmaların çeşitli gerçek dünya uygulamaları bulunmaktadır:</p>
+            <ul>
+                <li><strong>Güvenlik Taramaları:</strong> Ağ güvenliği ve siber saldırı tespitinde benzer mantıksal çıkarım yöntemleri kullanılır.</li>
+                <li><strong>Tıbbi Teşhis:</strong> Belirtilere dayalı olarak hastalık olasılıklarının hesaplanması.</li>
+                <li><strong>Kaynak Keşfi:</strong> Jeolojik araştırmalarda maden yataklarının belirlenmesi.</li>
+                <li><strong>Makine Öğrenmesi:</strong> Eksik verilerin tamamlanması ve model tahminleri.</li>
+            </ul>
+        </section>
+    </div>
 
-  <section>
-    <h2>Matematiksel Model</h2>
-    <p>Durum uzayı: Hücrelerin açık/kapalı/bayraklı kombinasyonları.</p>
-    <p>Strateji uzayı: Her oyuncunun seçebileceği hücre kümesi.</p>
-    <p>Ödeme fonksiyonu: Yukarıda verilen puanlama ile tanımlanır.</p>
-  </section>
+    <footer>
+        <div class="container">
+            <p>Algoritmik Oyun Teorisi Ödevi - Mayın Tarlası Analizi</p>
+            <p>Hazırlayan: [Adınız Soyadınız] | Tarih: 2025</p>
+        </div>
+    </footer>
 
-  <section>
-    <h2>Pseudocode</h2>
-    <pre><code>Başla:
-  ızgara oluştur, mayınları yerleştir
-  oyuncu = 1
-  döngü:
-     hamle = aç / bayrak
-     eğer aç && mayın -> -10 puan
-     eğer aç && güvenli -> +1 puan
-     eğer bayrak && doğru -> +2 puan
-  en yüksek puanı alan kazanır
-Bitir</code></pre>
-  </section>
-
-  <section>
-    <h2>Geliştirme Ortamı</h2>
-    <ul>
-      <li><strong>Python + Jupyter Notebook:</strong> strateji analizi, Nash dengesi simülasyonları</li>
-      <li><strong>JavaScript (React):</strong> görsel Mayın Tarlası uygulaması</li>
-      <li><strong>GitHub Pages:</strong> bu HTML dosyasıyla yayın</li>
-    </ul>
-  </section>
-
-  <footer>
-    <p>© 2025 Mayın Tarlası AGT Projesi</p>
-  </footer>
+    <script>
+        // Oyun değişkenleri
+        const BOARD_SIZE = 10;
+        const MINES_COUNT = 10;
+        let board = [];
+        let gameOver = false;
+        let gameWon = false;
+        let minesRemaining = MINES_COUNT;
+        let timer = 0;
+        let timerInterval;
+        
+        // DOM elementleri
+        const gameBoard = document.getElementById('game-board');
+        const minesRemainingElement = document.getElementById('mines-remaining');
+        const timerElement = document.getElementById('time');
+        const resetButton = document.getElementById('reset-btn');
+        
+        // Oyunu başlat
+        function initGame() {
+            clearInterval(timerInterval);
+            timer = 0;
+            timerElement.textContent = timer;
+            gameOver = false;
+            gameWon = false;
+            minesRemaining = MINES_COUNT;
+            minesRemainingElement.textContent = minesRemaining;
+            
+            // Tahtayı oluştur
+            createBoard();
+            placeMines();
+            calculateNumbers();
+            renderBoard();
+            
+            // Zamanlayıcıyı başlat
+            timerInterval = setInterval(() => {
+                if (!gameOver && !gameWon) {
+                    timer++;
+                    timerElement.textContent = timer;
+                }
+            }, 1000);
+        }
+        
+        // Oyun tahtasını oluştur
+        function createBoard() {
+            board = [];
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                board[i] = [];
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    board[i][j] = {
+                        isMine: false,
+                        isRevealed: false,
+                        isFlagged: false,
+                        neighborMines: 0
+                    };
+                }
+            }
+        }
+        
+        // Mayınları yerleştir
+        function placeMines() {
+            let minesPlaced = 0;
+            while (minesPlaced < MINES_COUNT) {
+                const row = Math.floor(Math.random() * BOARD_SIZE);
+                const col = Math.floor(Math.random() * BOARD_SIZE);
+                
+                if (!board[row][col].isMine) {
+                    board[row][col].isMine = true;
+                    minesPlaced++;
+                }
+            }
+        }
+        
+        // Komşu mayın sayılarını hesapla
+        function calculateNumbers() {
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    if (!board[i][j].isMine) {
+                        let count = 0;
+                        
+                        // Tüm komşuları kontrol et
+                        for (let di = -1; di <= 1; di++) {
+                            for (let dj = -1; dj <= 1; dj++) {
+                                const ni = i + di;
+                                const nj = j + dj;
+                                
+                                if (ni >= 0 && ni < BOARD_SIZE && nj >= 0 && nj < BOARD_SIZE) {
+                                    if (board[ni][nj].isMine) {
+                                        count++;
+                                    }
+                                }
+                            }
+                        }
+                        
+                        board[i][j].neighborMines = count;
+                    }
+                }
+            }
+        }
+        
+        // Tahtayı ekrana çiz
+        function renderBoard() {
+            gameBoard.innerHTML = '';
+            gameBoard.style.gridTemplateColumns = `repeat(${BOARD_SIZE}, 30px)`;
+            
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = i;
+                    cell.dataset.col = j;
+                    
+                    const cellData = board[i][j];
+                    
+                    if (cellData.isRevealed) {
+                        cell.classList.add('revealed');
+                        
+                        if (cellData.isMine) {
+                            cell.classList.add('mine');
+                        } else if (cellData.neighborMines > 0) {
+                            cell.textContent = cellData.neighborMines;
+                            cell.classList.add(`number-${cellData.neighborMines}`);
+                        }
+                    } else if (cellData.isFlagged) {
+                        cell.classList.add('flagged');
+                    }
+                    
+                    cell.addEventListener('click', () => handleCellClick(i, j));
+                    cell.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        handleRightClick(i, j);
+                    });
+                    
+                    gameBoard.appendChild(cell);
+                }
+            }
+        }
+        
+        // Hücre tıklama işlemi
+        function handleCellClick(row, col) {
+            if (gameOver || gameWon || board[row][col].isRevealed || board[row][col].isFlagged) {
+                return;
+            }
+            
+            const cell = board[row][col];
+            cell.isRevealed = true;
+            
+            if (cell.isMine) {
+                // Oyun bitti - kaybettin
+                gameOver = true;
+                revealAllMines();
+                alert('Mayına bastınız! Oyun bitti.');
+            } else {
+                if (cell.neighborMines === 0) {
+                    // Komşu hücreleri aç (flood fill)
+                    revealNeighbors(row, col);
+                }
+                
+                checkWinCondition();
+            }
+            
+            renderBoard();
+        }
+        
+        // Sağ tıklama (bayrak koyma/kaldırma)
+        function handleRightClick(row, col) {
+            if (gameOver || gameWon || board[row][col].isRevealed) {
+                return;
+            }
+            
+            const cell = board[row][col];
+            cell.isFlagged = !cell.isFlagged;
+            
+            if (cell.isFlagged) {
+                minesRemaining--;
+            } else {
+                minesRemaining++;
+            }
+            
+            minesRemainingElement.textContent = minesRemaining;
+            renderBoard();
+        }
+        
+        // Komşu hücreleri aç (flood fill algoritması)
+        function revealNeighbors(row, col) {
+            for (let di = -1; di <= 1; di++) {
+                for (let dj = -1; dj <= 1; dj++) {
+                    const ni = row + di;
+                    const nj = col + dj;
+                    
+                    if (ni >= 0 && ni < BOARD_SIZE && nj >= 0 && nj < BOARD_SIZE) {
+                        if (!board[ni][nj].isRevealed && !board[ni][nj].isFlagged) {
+                            board[ni][nj].isRevealed = true;
+                            
+                            if (board[ni][nj].neighborMines === 0) {
+                                revealNeighbors(ni, nj);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Tüm mayınları göster (oyun bittiğinde)
+        function revealAllMines() {
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    if (board[i][j].isMine) {
+                        board[i][j].isRevealed = true;
+                    }
+                }
+            }
+        }
+        
+        // Kazanma durumunu kontrol et
+        function checkWinCondition() {
+            let unrevealedSafeCells = 0;
+            
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    if (!board[i][j].isRevealed && !board[i][j].isMine) {
+                        unrevealedSafeCells++;
+                    }
+                }
+            }
+            
+            if (unrevealedSafeCells === 0) {
+                gameWon = true;
+                clearInterval(timerInterval);
+                alert(`Tebrikler! Oyunu ${timer} saniyede tamamladınız.`);
+            }
+        }
+        
+        // Olay dinleyicileri
+        resetButton.addEventListener('click', initGame);
+        
+        // Oyunu başlat
+        initGame();
+    </script>
 </body>
 </html>
