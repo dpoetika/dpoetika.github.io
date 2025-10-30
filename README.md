@@ -1,1 +1,1 @@
-# dpoetika.github.io
+# Entry Burası
