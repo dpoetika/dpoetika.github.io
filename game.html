@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mayın Tarlası Oyunu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #f1f1f1;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background-color: rgba(25, 25, 45, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        h1 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+            font-size: 2.8rem;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.7);
+        }
+        
+        .subtitle {
+            color: #a0a0c0;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #0f3460;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-box {
+            background-color: #1a1a2e;
+            padding: 10px 15px;
+            border-radius: 8px;
+            min-width: 120px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #a0a0c0;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .size-selector {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .size-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .size-btn {
+            padding: 10px 20px;
+            background-color: #1a1a2e;
+            border: 2px solid #0f3460;
+            color: #f1f1f1;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .size-btn:hover {
+            background-color: #0f3460;
+        }
+        
+        .size-btn.active {
+            background-color: #ffcc00;
+            color: #1a1a2e;
+            border-color: #ffcc00;
+        }
+        
+        .game-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background-color: #ffcc00;
+            color: #1a1a2e;
+        }
+        
+        .btn-primary:hover {
+            background-color: #e6b800;
+            transform: translateY(-3px);
+        }
+        
+        .btn-secondary {
+            background-color: #0f3460;
+            color: #f1f1f1;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #0a2640;
+            transform: translateY(-3px);
+        }
+        
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 3px;
+            margin: 0 auto 25px;
+            background-color: #0f3460;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 650px;
+        }
+        
+        .cell {
+            aspect-ratio: 1/1;
+            background-color: #1a1a2e;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s;
+            font-size: 1.2rem;
+        }
+        
+        .cell:hover {
+            background-color: #2a2a3e;
+        }
+        
+        .cell.revealed {
+            background-color: #0f3460;
+            cursor: default;
+        }
+        
+        .cell.flagged {
+            background-color: #1a2e1a;
+        }
+        
+        .cell.mine {
+            background-color: #ff3333;
+        }
+        
+        .cell.mine.revealed {
+            background-color: #cc0000;
+        }
+        
+        .instructions {
+            background-color: #0f3460;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .instructions h3 {
+            color: #ffcc00;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+            color: #d0d0e0;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        
+        .number-1 { color: #2196F3; }
+        .number-2 { color: #4CAF50; }
+        .number-3 { color: #F44336; }
+        .number-4 { color: #9C27B0; }
+        .number-5 { color: #FF9800; }
+        .number-6 { color: #009688; }
+        .number-7 { color: #795548; }
+        .number-8 { color: #607D8B; }
+        
+        @media (max-width: 768px) {
+            .game-board {
+                grid-template-columns: repeat(8, 1fr);
+                max-width: 500px;
+            }
+            
+            .game-info {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .size-selector {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .game-board {
+                grid-template-columns: repeat(6, 1fr);
+                max-width: 350px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .stat-box {
+                min-width: 100px;
+                padding: 8px 12px;
+            }
+            
+            .btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        .game-status {
+            text-align: center;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: none;
+        }
+        
+        .win {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            display: block;
+        }
+        
+        .lose {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-bomb"></i> Mayın Tarlası</h1>
+            <p class="subtitle">Güvenli hücreleri bulun, mayınlardan kaçının!</p>
+        </header>
+        
+        <div class="game-info">
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-label">Kalan Mayın</div>
+                    <div class="stat-value" id="mines-count">10</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Süre</div>
+                    <div class="stat-value" id="timer">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Bulunan</div>
+                    <div class="stat-value" id="found-count">0</div>
+                </div>
+            </div>
+            
+            <div class="game-status" id="game-status"></div>
+        </div>
+        
+        <div class="controls">
+            <div class="size-selector">
+                <div>Oyun Boyutu:</div>
+                <div class="size-options">
+                    <button class="size-btn active" data-size="8x8">8x8 (10 Mayın)</button>
+                    <button class="size-btn" data-size="10x10">10x10 (15 Mayın)</button>
+                    <button class="size-btn" data-size="12x12">12x12 (22 Mayın)</button>
+                    <button class="size-btn" data-size="16x16">16x16 (40 Mayın)</button>
+                </div>
+            </div>
+            
+            <div class="game-buttons">
+                <button class="btn btn-primary" id="restart-btn">
+                    <i class="fas fa-redo"></i> Yeni Oyun
+                </button>
+                <button class="btn btn-secondary" id="hint-btn">
+                    <i class="fas fa-lightbulb"></i> İpucu
+                </button>
+                <button class="btn btn-secondary" id="instructions-btn">
+                    <i class="fas fa-question-circle"></i> Nasıl Oynanır
+                </button>
+            </div>
+        </div>
+        
+        <div class="game-board" id="game-board">
+            <!-- Oyun tahtası JavaScript ile oluşturulacak -->
+        </div>
+        
+        <div class="instructions" id="instructions">
+            <h3><i class="fas fa-info-circle"></i> Mayın Tarlası Nasıl Oynanır?</h3>
+            <ul>
+                <li><strong>Amaç:</strong> Tüm güvenli hücreleri açarak mayınlara basmamak.</li>
+                <li><strong>Sol tıklama:</strong> Hücreyi açar. Eğer mayına basarsanız oyunu kaybedersiniz.</li>
+                <li><strong>Sağ tıklama (veya uzun basma):</strong> Hücreye bayrak koyar/kaldırır. Mayın olduğunu düşündüğünüz hücreleri işaretleyin.</li>
+                <li><strong>Sayılar:</strong> Açılan hücredeki sayı, etrafındaki 8 hücrede kaç mayın olduğunu gösterir.</li>
+                <li><strong>Boş hücreler:</strong> Etrafında hiç mayın yoksa, komşu hücreler otomatik olarak açılır.</li>
+                <li><strong>Kazanma:</strong> Tüm güvenli hücreleri açtığınızda ve tüm mayınları işaretlediğinizde oyunu kazanırsınız.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Oyun değişkenleri
+        let gameBoard = [];
+        let mines = [];
+        let gameOver = false;
+        let gameStarted = false;
+        let gameWon = false;
+        let flags = 0;
+        let revealedCells = 0;
+        let totalMines = 10;
+        let boardSize = 8;
+        let timer = 0;
+        let timerInterval = null;
+        
+        // DOM elementleri
+        const gameBoardElement = document.getElementById('game-board');
+        const minesCountElement = document.getElementById('mines-count');
+        const timerElement = document.getElementById('timer');
+        const foundCountElement = document.getElementById('found-count');
+        const gameStatusElement = document.getElementById('game-status');
+        const restartBtn = document.getElementById('restart-btn');
+        const hintBtn = document.getElementById('hint-btn');
+        const instructionsBtn = document.getElementById('instructions-btn');
+        const sizeButtons = document.querySelectorAll('.size-btn');
+        const instructionsElement = document.getElementById('instructions');
+        
+        // Oyun boyutları ve mayın sayıları
+        const gameSizes = {
+            '8x8': { size: 8, mines: 10 },
+            '10x10': { size: 10, mines: 15 },
+            '12x12': { size: 12, mines: 22 },
+            '16x16': { size: 16, mines: 40 }
+        };
+        
+        // Oyunu başlatma
+        function initGame() {
+            // Oyun durumunu sıfırla
+            gameOver = false;
+            gameStarted = false;
+            gameWon = false;
+            flags = 0;
+            revealedCells = 0;
+            timer = 0;
+            clearInterval(timerInterval);
+            timerElement.textContent = '0';
+            gameStatusElement.className = 'game-status';
+            gameStatusElement.textContent = '';
+            
+            // Oyun tahtasını oluştur
+            createBoard();
+            
+            // İstatistikleri güncelle
+            minesCountElement.textContent = totalMines;
+            foundCountElement.textContent = '0';
+            
+            // Oyun tahtasını render et
+            renderBoard();
+        }
+        
+        // Oyun tahtasını oluşturma
+        function createBoard() {
+            // Tahtayı sıfırla
+            gameBoard = [];
+            mines = [];
+            
+            // Boş tahta oluştur
+            for (let i = 0; i < boardSize; i++) {
+                gameBoard[i] = [];
+                for (let j = 0; j < boardSize; j++) {
+                    gameBoard[i][j] = {
+                        isMine: false,
+                        isRevealed: false,
+                        isFlagged: false,
+                        neighborMines: 0
+                    };
+                }
+            }
+            
+            // Mayınları yerleştir
+            let minesPlaced = 0;
+            while (minesPlaced < totalMines) {
+                const row = Math.floor(Math.random() * boardSize);
+                const col = Math.floor(Math.random() * boardSize);
+                
+                if (!gameBoard[row][col].isMine) {
+                    gameBoard[row][col].isMine = true;
+                    mines.push({ row, col });
+                    minesPlaced++;
+                }
+            }
+            
+            // Komşu mayın sayılarını hesapla
+            for (let i = 0; i < boardSize; i++) {
+                for (let j = 0; j < boardSize; j++) {
+                    if (!gameBoard[i][j].isMine) {
+                        gameBoard[i][j].neighborMines = countNeighborMines(i, j);
+                    }
+                }
+            }
+        }
+        
+        // Komşu mayınları sayma
+        function countNeighborMines(row, col) {
+            let count = 0;
+            
+            for (let i = -1; i <= 1; i++) {
+                for (let j = -1; j <= 1; j++) {
+                    if (i === 0 && j === 0) continue;
+                    
+                    const newRow = row + i;
+                    const newCol = col + j;
+                    
+                    if (newRow >= 0 && newRow < boardSize && newCol >= 0 && newCol < boardSize) {
+                        if (gameBoard[newRow][newCol].isMine) {
+                            count++;
+                        }
+                    }
+                }
+            }
+            
+            return count;
+        }
+        
+        // Oyun tahtasını render etme
+        function renderBoard() {
+            // Grid yapısını ayarla
+            gameBoardElement.style.gridTemplateColumns = `repeat(${boardSize}, 1fr)`;
+            
+            // Tahtayı temizle
+            gameBoardElement.innerHTML = '';
+            
+            // Hücreleri oluştur
+            for (let i = 0; i < boardSize; i++) {
+                for (let j = 0; j < boardSize; j++) {
+                    const cell = gameBoard[i][j];
+                    const cellElement = document.createElement('div');
+                    cellElement.className = 'cell';
+                    cellElement.dataset.row = i;
+                    cellElement.dataset.col = j;
+                    
+                    // Hücre içeriğini belirle
+                    if (cell.isRevealed) {
+                        cellElement.classList.add('revealed');
+                        if (cell.isMine) {
+                            cellElement.classList.add('mine');
+                            cellElement.innerHTML = '<i class="fas fa-bomb"></i>';
+                        } else if (cell.neighborMines > 0) {
+                            cellElement.textContent = cell.neighborMines;
+                            cellElement.classList.add(`number-${cell.neighborMines}`);
+                        }
+                    } else if (cell.isFlagged) {
+                        cellElement.classList.add('flagged');
+                        cellElement.innerHTML = '<i class="fas fa-flag"></i>';
+                    }
+                    
+                    // Olay dinleyicileri
+                    cellElement.addEventListener('click', () => handleCellClick(i, j));
+                    cellElement.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        handleRightClick(i, j);
+                    });
+                    
+                    gameBoardElement.appendChild(cellElement);
+                }
+            }
+        }
+        
+        // Hücre tıklama işlemi
+        function handleCellClick(row, col) {
+            if (gameOver || gameWon) return;
+            
+            const cell = gameBoard[row][col];
+            
+            // Oyun başlamadıysa zamanlayıcıyı başlat
+            if (!gameStarted) {
+                startTimer();
+                gameStarted = true;
+            }
+            
+            // Bayraklı hücreye tıklanamaz
+            if (cell.isFlagged) return;
+            
+            // Hücre zaten açıksa işlem yapma
+            if (cell.isRevealed) return;
+            
+            // Mayına basıldıysa oyunu bitir
+            if (cell.isMine) {
+                revealAllMines();
+                gameOver = true;
+                clearInterval(timerInterval);
+                gameStatusElement.textContent = 'Oyun Bitti! Mayına bastınız!';
+                gameStatusElement.className = 'game-status lose';
+                return;
+            }
+            
+            // Hücreyi aç
+            revealCell(row, col);
+            
+            // Oyunu kazanıp kazanmadığını kontrol et
+            checkWin();
+        }
+        
+        // Sağ tıklama işlemi (bayrak koyma/kaldırma)
+        function handleRightClick(row, col) {
+            if (gameOver || gameWon) return;
+            
+            const cell = gameBoard[row][col];
+            
+            // Oyun başlamadıysa zamanlayıcıyı başlat
+            if (!gameStarted) {
+                startTimer();
+                gameStarted = true;
+            }
+            
+            // Açılmış hücreye bayrak konamaz
+            if (cell.isRevealed) return;
+            
+            // Bayrağı koy/kaldır
+            cell.isFlagged = !cell.isFlagged;
+            
+            // Bayrak sayısını güncelle
+            if (cell.isFlagged) {
+                flags++;
+            } else {
+                flags--;
+            }
+            
+            // İstatistikleri güncelle
+            minesCountElement.textContent = totalMines - flags;
+            foundCountElement.textContent = flags;
+            
+            // Tahtayı yeniden render et
+            renderBoard();
+            
+            // Oyunu kazanıp kazanmadığını kontrol et
+            checkWin();
+        }
+        
+        // Hücreyi açma (recursive)
+        function revealCell(row, col) {
+            // Geçersiz indeks kontrolü
+            if (row < 0 || row >= boardSize || col < 0 || col >= boardSize) return;
+            
+            const cell = gameBoard[row][col];
+            
+            // Hücre zaten açıksa veya bayraklıysa işlem yapma
+            if (cell.isRevealed || cell.isFlagged) return;
+            
+            // Hücreyi açık olarak işaretle
+            cell.isRevealed = true;
+            revealedCells++;
+            
+            // Eğer hücrede mayın yoksa ve komşu mayın sayısı 0 ise, komşuları aç
+            if (!cell.isMine && cell.neighborMines === 0) {
+                // Tüm komşuları kontrol et
+                for (let i = -1; i <= 1; i++) {
+                    for (let j = -1; j <= 1; j++) {
+                        if (i === 0 && j === 0) continue;
+                        revealCell(row + i, col + j);
+                    }
+                }
+            }
+            
+            // Tahtayı yeniden render et
+            renderBoard();
+        }
+        
+        // Tüm mayınları açma (kaybetme durumunda)
+        function revealAllMines() {
+            for (let mine of mines) {
+                gameBoard[mine.row][mine.col].isRevealed = true;
+            }
+            renderBoard();
+        }
+        
+        // Zamanlayıcıyı başlat
+        function startTimer() {
+            clearInterval(timerInterval);
+            timer = 0;
+            timerElement.textContent = '0';
+            
+            timerInterval = setInterval(() => {
+                timer++;
+                timerElement.textContent = timer;
+            }, 1000);
+        }
+        
+        // Oyunu kazanma kontrolü
+        function checkWin() {
+            // Tüm mayınlar bayraklı mı ve tüm güvenli hücreler açık mı?
+            let allMinesFlagged = true;
+            let allSafeRevealed = true;
+            
+            for (let i = 0; i < boardSize; i++) {
+                for (let j = 0; j < boardSize; j++) {
+                    const cell = gameBoard[i][j];
+                    
+                    if (cell.isMine) {
+                        if (!cell.isFlagged) {
+                            allMinesFlagged = false;
+                        }
+                    } else {
+                        if (!cell.isRevealed) {
+                            allSafeRevealed = false;
+                        }
+                    }
+                }
+            }
+            
+            // Kazanma durumu
+            if (allMinesFlagged && allSafeRevealed) {
+                gameWon = true;
+                clearInterval(timerInterval);
+                gameStatusElement.textContent = `Tebrikler! Oyunu ${timer} saniyede kazandınız!`;
+                gameStatusElement.className = 'game-status win';
+            }
+        }
+        
+        // İpucu fonksiyonu
+        function giveHint() {
+            if (gameOver || gameWon || !gameStarted) return;
+            
+            // Açılmamış ve bayraklanmamış güvenli bir hücre bul
+            let hintCells = [];
+            
+            for (let i = 0; i < boardSize; i++) {
+                for (let j = 0; j < boardSize; j++) {
+                    const cell = gameBoard[i][j];
+                    if (!cell.isMine && !cell.isRevealed && !cell.isFlagged) {
+                        hintCells.push({ row: i, col: j });
+                    }
+                }
+            }
+            
+            if (hintCells.length > 0) {
+                // Rastgele bir ipucu hücresi seç
+                const hint = hintCells[Math.floor(Math.random() * hintCells.length)];
+                
+                // Hücreyi geçici olarak vurgula
+                const cellElement = document.querySelector(`.cell[data-row="${hint.row}"][data-col="${hint.col}"]`);
+                cellElement.style.backgroundColor = '#4CAF50';
+                cellElement.style.transform = 'scale(1.1)';
+                
+                // 1.5 saniye sonra vurguyu kaldır
+                setTimeout(() => {
+                    cellElement.style.backgroundColor = '';
+                    cellElement.style.transform = '';
+                }, 1500);
+            }
+        }
+        
+        // Oyun boyutunu değiştirme
+        function changeGameSize(sizeKey) {
+            const sizeInfo = gameSizes[sizeKey];
+            boardSize = sizeInfo.size;
+            totalMines = sizeInfo.mines;
+            
+            // Aktif butonu güncelle
+            sizeButtons.forEach(btn => {
+                if (btn.dataset.size === sizeKey) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            // Oyunu yeniden başlat
+            initGame();
+        }
+        
+        // Olay dinleyicileri
+        restartBtn.addEventListener('click', initGame);
+        
+        hintBtn.addEventListener('click', giveHint);
+        
+        instructionsBtn.addEventListener('click', () => {
+            instructionsElement.style.display = instructionsElement.style.display === 'none' ? 'block' : 'none';
+        });
+        
+        sizeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                changeGameSize(btn.dataset.size);
+            });
+        });
+        
+        // Oyunu başlat
+        initGame();
+    </script>
+</body>
+</html>
